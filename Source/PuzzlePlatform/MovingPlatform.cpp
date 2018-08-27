@@ -18,19 +18,32 @@ void AMovingPlatform::BeginPlay()
 		SetReplicates(true); //Set the replication for this actor to true
 		SetReplicateMovement(true); //Enables the replication of this actors's movement
 	}
+
+	GlobalStartLocation = GetActorLocation();
+	GlobalTargetLocation = GetTransform().TransformPosition(TargetLocation);
 }
 
 void AMovingPlatform::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	
+	
 	//Checking if we are the server
 	if (HasAuthority()) { //If yes move the platform
 		FVector Location = GetActorLocation();
-		FVector GlobalTargetLocation = GetTransform().TransformPosition(TargetLocation);
-		FVector Direction = (GlobalTargetLocation - Location).GetSafeNormal();
+
+		float TravelLenght = (GlobalTargetLocation - GlobalStartLocation).Size();
+		float Travelled = (Location - GlobalStartLocation).Size();
+
+		if (Travelled > TravelLenght)
+		{
+			FVector Swap = GlobalStartLocation;
+			GlobalStartLocation = GetActorLocation();
+			GlobalTargetLocation = Swap;
+		}
+
+		FVector Direction = (GlobalTargetLocation - GlobalStartLocation).GetSafeNormal();
 		Location += PlatformSpeed * DeltaTime * Direction;
 		SetActorLocation(Location); //Set the new position of the platform
 	}
-	
 }
