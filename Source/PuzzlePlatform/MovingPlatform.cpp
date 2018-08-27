@@ -26,9 +26,11 @@ void AMovingPlatform::Tick(float DeltaTime)
 	
 	//Checking if we are the server
 	if (HasAuthority()) { //If yes move the platform
-		FVector location = GetActorLocation();
-		location += FVector(PlatformSpeed * DeltaTime, 0, 0);
-		SetActorLocation(location); //Set the new position of the platform
+		FVector Location = GetActorLocation();
+		FVector GlobalTargetLocation = GetTransform().TransformPosition(TargetLocation);
+		FVector Direction = (GlobalTargetLocation - Location).GetSafeNormal();
+		Location += PlatformSpeed * DeltaTime * Direction;
+		SetActorLocation(Location); //Set the new position of the platform
 	}
 	
 }
