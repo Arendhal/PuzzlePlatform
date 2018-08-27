@@ -19,6 +19,8 @@ public:
 	float PlatformSpeed = 20 ;
 	
 	AMovingPlatform();
+
+	virtual void BeginPlay() override;
 	
 	virtual void Tick(float DeltaTime) override;
 	
